@@ -3,13 +3,7 @@ require 'json'
 require 'aws-sdk'
 
 # Used to perform cleanup on TA output
-# To obtain the output from TA for seciurity groups
-# 1, run the report in TA
-# 2, obtain the check-id for the group report 'aws support describe-trusted-advisor-checks --language en'
-# 3, get the output in json format  using the check-id '\
-#    'aws support describe-trusted-advisor-check-result --language en --check-id 1iG5NDGVre --query 'result.sort_by
-# (flaggedResources[?status!=`ok`],&metadata[2])[].metadata' --output json >> ~/Downloads/output.json
-# https://docs.aws.amazon.com/sdkforruby/api/Aws/Support/Client.html#describe_trusted_advisor_checks-instance_method
+# To obtain the output from TA for security groups
 class TrustedAdvisorCleaner
   def initialize(region)
     authenticate(region)
@@ -64,9 +58,6 @@ class TrustedAdvisorCleaner
     response = @support.describe_trusted_advisor_checks(
       language: 'en', # required
     )
-    # p response.successful?  <= true / false
-    # p response.data.checks  <= array of checks
-
     if response.successful?
       # loop throught the checks array to find the security group one
       response.data.checks.each do |e|
@@ -163,9 +154,8 @@ class TrustedAdvisorCleaner
   end
 end # end class
 
-# security_group.revoke_ingress(IpProtocol="tcp", CidrIp="0.0.0.0/0", FromPort=3306, ToPort=3306)
-
 filename = 'output-10.json'
+
 TrustedAdvisorCleaner.new('ap-southeast-1').generate_output('Security Groups - Specific Ports Unrestricted', filename)
 # p TrustedAdvisorCleaner.new('us-east-1').display_groups_in_output('array', filename)
 # p TrustedAdvisorCleaner.new('eu-central-1').display_groups_in_output('groups_only', filename)

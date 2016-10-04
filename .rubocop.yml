@@ -1,0 +1,7 @@
+AllCops:
+
+  Exclude:
+    - 'test_files/*'
+
+Metrics/MethodLength:
+  Max: 20
